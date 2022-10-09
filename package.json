@@ -1,6 +1,6 @@
 {
   "name": "messages-stat",
-  "version": "1.0",
+  "version": "1.0.0",
   "main": "dist-electron/main/index.js",
   "description": "Load VK stats and view charts",
   "author": "Soprachev Andrei",
@@ -21,7 +21,7 @@
     "vite": "^3.1.4",
     "vite-electron-plugin": "^0.4.4",
     "vue": "^3.2.40",
-    "vue-tsc": "^0.40.13"
+    "vue-tsc": "^1.0.3"
   },
   "debug": {
     "env": {
