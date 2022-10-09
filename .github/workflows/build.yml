@@ -1,18 +1,19 @@
 name: Build
 
 on:
-  push:
+  create-tag:
     branches: [main]
     paths-ignore:
-      - "**.md"
-      - "**.spec.js"
-      - ".idea"
-      - ".vscode"
-      - ".dockerignore"
-      - "Dockerfile"
-      - ".gitignore"
-      - ".github/**"
-      - "!.github/workflows/build.yml"
+      - '**.md'
+      - '**.spec.js'
+      - '.idea'
+      - '.vscode'
+      - '.dockerignore'
+      - 'Dockerfile'
+      - '.gitignore'
+      - '.github/**'
+      - '!.github/workflows/build.yml'
+  workflow_dispatch:
 
 jobs:
   build:
