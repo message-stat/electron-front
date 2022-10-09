@@ -1,9 +1,9 @@
 {
-  "name": "electron-vue-vite",
-  "version": "2.1.0",
+  "name": "messages-stat",
+  "version": "1.0",
   "main": "dist-electron/main/index.js",
-  "description": "Really simple Electron + Vue + Vite boilerplate.",
-  "author": "草鞋没号 <308487730@qq.com>",
+  "description": "Load VK stats and view charts",
+  "author": "Soprachev Andrei",
   "license": "MIT",
   "private": true,
   "scripts": {
