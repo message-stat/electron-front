@@ -8,6 +8,8 @@ import LoaderVue from './components/Loader.vue'
 </script>
 
 
-<style scoped>
-
+<style>
+p {
+  margin: 0;
+}
 </style>
