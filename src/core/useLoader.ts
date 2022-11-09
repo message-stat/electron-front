@@ -2,7 +2,7 @@ import { createSimpleExpression } from "@vue/compiler-core";
 import axios from "axios";
 import { ref, Ref } from "vue";
 
-import { IWord } from 'common/interfaces/IWord'
+import { IWord, ISendSession } from 'common/interfaces/IWord'
 
 import { API } from "./vkTypes/api";
 
@@ -11,11 +11,6 @@ const MESSAGE_PER_LOAD = 200
 const CONVERSATION_PER_LOAD = 20
 
 declare type VKTime = number
-
-interface ISendSession {
-  words: Word[]
-  beginTime: VKTime
-}
 
 class Word implements IWord {
   text: string
@@ -28,6 +23,10 @@ class Word implements IWord {
     this.date = new Date(date * 1000)
     this.debug = debug
   }
+}
+
+type SendSession = ISendSession & {
+  vkDate: VKTime
 }
 
 const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
@@ -57,9 +56,25 @@ export function useLoader(params: {
   }
 }
 
+let sessionsToSend: ISendSession[] = []
 function sendSession(session: ISendSession) {
-  console.log(session);
+  sessionsToSend.push({ words: session.words, beginTime: session.beginTime })
 }
+
+async function sendLoop() {
+  while (true) {
+    if (sessionsToSend.length) {
+      console.log('send', sessionsToSend.length, 'sessions');
+
+      await axios.post('http://localhost:8000/api/sendWord', sessionsToSend)
+      sessionsToSend = []
+    } else {
+      await sleep(200)
+    }
+  }
+}
+
+sendLoop()
 
 async function load(token: string, delay: number) {
   const chatCount = (await API.getConversations(token, 1, 0, delay)).count;
@@ -110,7 +125,7 @@ async function loadConversationMessages(token: string, peerId: number, totalMess
     await sleep(delay);
     const messages = await API.getHistory(token, MESSAGE_PER_LOAD, offset, peerId, delay)
 
-    let currentSession: ISendSession = null
+    let currentSession: SendSession = null
 
     messages.items
       .filter(t => t.out)
@@ -120,7 +135,7 @@ async function loadConversationMessages(token: string, peerId: number, totalMess
 
         const wordsToSend = words.map(t => new Word(t, roundedTime, message.text))
 
-        if (currentSession?.beginTime == roundedTime) {
+        if (currentSession?.vkDate == roundedTime) {
           currentSession.words.push(...wordsToSend)
         } else {
           if (currentSession) {
@@ -129,7 +144,7 @@ async function loadConversationMessages(token: string, peerId: number, totalMess
             progress.value = messageProcessedRef.value / messagesCountRef.value
           }
 
-          currentSession = { words: wordsToSend, beginTime: roundedTime }
+          currentSession = { words: wordsToSend, beginTime: new Date(1000 * roundedTime), vkDate: roundedTime }
         }
 
         messageProcessedRef.value++
